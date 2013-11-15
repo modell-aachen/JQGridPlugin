@@ -1,0 +1,205 @@
+%META:TOPICINFO{author="ProjectContributor" comment="save topic" date="1290553816" format="1.1" version="3"}%
+---+ %TOPIC%
+
+%STARTSECTION{"summary"}%
+jqGrid is an Ajax-enabled !JavaScript control that provides solutions for
+representing and manipulating tabular data on the web. Since the grid is a
+client-side solution loading data dynamically through Ajax callbacks, it can be
+integrated with any server-side technology, including PHP, ASP, Java Servlets,
+JSP, !ColdFusion, and Perl.
+See also the [[http://www.trirand.com/jqgridwiki/doku.php?id=wiki:jqgriddocs][jqgrid wiki]] for up-to-date documentation.
+%ENDSECTION{"summary"}%
+
+---++ Source
+
+Homepage: http://www.trirand.com/blog/ %BR%
+Author(s): Tony Tomov %BR%
+Version: 4.1.2
+
+---++ Syntax
+=%<nop>GRID{"&lt;query>" form="..." }%=
+
+render a grid of topics matching the given query
+
+| *Parameter* | *Description* | *Default* |
+| =query= | search query | searching for topics that have the named =form= attached to it |
+| =web= | web where to start the query | BASEWEB |
+| =form= | !DataForm definition which describes the columns of the grid | |
+| =columns= | name of columns to display; these are the formfield names as specified in the !DataForm definition in the specified =form=; there is a list of special column names that are remapped to topic properties (see below) | all columns in the !DataForm |
+| =include= | regluar expression columns/formfields must match to be included in the grid model | |
+| =exclude= | regluar expression columns/formfields must NOT match to be included in the grid model | |
+| =rows= | number of rows to display in the grid per page | 20 |
+| =rownumbers= | toggle on/off displaying the row number in the first column of the grid | off |
+| =rownumwidth= | number of pixels to reserve for =rownumbers= | 25 |
+| =filterbar= | toggle on/off displaying a filter input field at the top of each column to narrow down search results | off |
+| =toolbar= | toggle on/off displaying a toolbar at the bottom of the grid; switch this on for pagination | off |
+| =sort= | name of column to sort the grid initially | first column (excluding the optional row numbers) |
+| =reverse= | toggle on/off reverse sorting order | off |
+| =caption= | caption to be displayed at the top of the grid | |
+| =pager= | toggle on/off the pager in the toolbar | off |
+| =viewrecords= | toggle on/off computing the total number of records and pages as part of the pager | on |
+| =height= | height of the grid; can be set as a number or =auto= | |
+| =width= | width of the grid; if not set, the grid's width is the sum of the width of all column  | |
+| =scroll= | when enabled the pager element is disabled; data is loaded dynamically while scrolling down the grid | off |
+| =rowlist= | comma separated list of optional number of rows to select from in the grid interface | 5, 10, 20, 30, 40, 50, 100 |
+| =colname_title= | (per column option) title of the column | field title as specified in the !DataForm |
+| =colname_resizable= | (per column option) toggle on/off whether the width of the column can be changed by the user | on |
+| =colname_align= | (per column option) alignment of the data in the cell | left |
+| =colname_width= | (per column option) width of this column in pixel | |
+| =colname_search= | (per column option) toggle on/off if this column is searchable or not | on (off for image columns) |
+| =colname_formatter= | (per column option) specifies one of the standard formatters of jqgrid to be used for this column | formats cell values as is |
+| =colname_formatoptions= | (per column option) additional parameters to be passed over to the column formatter; see the docu of the formatter which these are; this is a list of json objects specified as key:value pairs, comma separated.  | none |
+| =colname_format= | (per column option) specifies a template to be used when formatting the a cell of this column; the format string may contain the variables: \
+  <ul> \
+     <li> =${id}=: the id of the row, most often the web.topic name </li> \
+     <li> =${value}=: the value of the current cell</li> \
+     <li> =${key}=: some custom key as specified in the =colname_formatoptions</li> \
+  </ul> Furthermore the format string may contain any formatting features of %SYSTEMWEB%.JQueryTmpl | |
+| =colname_hidden= | (per column option) boolean value; if set the column will be hidden | on |
+| =id= | id of the grid | Any relevant name |
+| =connector= | connector ID or a topic name; a grid connector is responsible to interact with the jQGrid widget. \
+                This can be a topic that jQGrid should use as the target of its ajax requests, or any other registered grid connector. \
+                The topic should have a =grid= section and render an appropriate XML response based on the URL parameters provided by jqGrid (page, sort, columns, etc). | =$Foswiki::cfg{JQGridPlugin}{DefaultConnector}= |
+| =sortable= | (per column option) sort column in ascending or descending order | on |
+| =loadonce= | grid loads data from the server once, all other manipulations are done on the client side | on |
+| =multiselect= | allows selection of multiple rows in the grid | on |
+| =onSelectRow= | event handler triggered when a row is selected | |
+| =onSelectAll= | event handler triggered when all rows selected at once | |
+| =gridComplete= | event handler triggered when the grid is loaded | |
+---++ Special columns
+
+Normally, the data and the way it is displayed in a GRID is specified by the !DataForm definition the GRID expression points to.
+However, there's a set of additional properties of a topic that can be displayed in a GRID. These are specified in the =columns=
+parameter to %GRID and are mapped to the actual property as follows:
+
+| *Colname* | *Data* | *Displayed* |
+| Topic | topic name | link to topic |
+| Modified, Changed | time when the topic has been changed recently | standard date format |
+| By, Author | author of the last modification | link to author's homepage |
+| Image, Photo | formfields of that name | displayed as html &lt;img&gt; tag where the data is used as src link ||
+When [[Foswiki:Extensions/FlexFormPlugin][FlexFormPlugin]] is installed, each cell is rendered using
+=%RENDERFORDISPLAY= expression.
+
+When [[Foswiki:Extesions/ImagePlugin][ImagePlugin]] is installed, each Image/Photo cell is rendered using an
+=%IMAGE= expression to render thumbnails.
+
+---++ Examples
+%IF{
+  "{AuthScripts}=~'\brest\b'"
+  then="<blockquote class='foswikiHelp'>
+    $percntX$percnt Users of this wiki need to be logged in to use %TOPIC%.
+
+If guests are to make use of %TOPIC% without being logged in, remove the =rest= script from ={AuthScripts}= in [[%SCRIPTURLPATH{"configure"}%#Login$SecurityAndAuthentication][configure]] under Security and Authentication -> Login. See also: [[%SYSTEMWEB%.UserAuthentication][UserAuthentication]]
+    $percntIF{
+      \"NOT context authenticated\"
+      then=\"$n$dollarpercntX$dollarpercnt You are not logged in, so the examples below will not work\"
+    }$percnt</blockquote>"
+}%
+*Users*, demonstrating customised columns:
+%TWISTY{showlink="Code..."}%
+%JQREQUIRE{"chili"}%<verbatim class="tml">%STARTSECTION{"UsersExample"}%
+
+%GRID{
+  form="UserForm"
+  web="%USERSWEB%"
+  columns="Topic,FirstName,LastName,Organization,Country,Telephone"
+  filterbar="on"
+  toolbar="on"
+  pager="on"
+  rownumbers="on"
+  width="auto"
+  height="auto"
+  FirstName_hidden="on"
+  LastName_hidden="on"
+  Telephone_format="%JQICON{"telephone"}% ${value}"
+  Topic_title="Name"
+  Topic_formatoptions="web:'%USERSWEB%'"
+  Topic_format="<a href='%SCRIPTURLPATH{"view"}%/${web}/${value}'>${FirstName} ${LastName}</a>"
+}%
+
+%ENDSECTION{"UsersExample"}%</verbatim>
+%ENDTWISTY%
+%INCLUDE{"%TOPIC%" section="UsersExample"}%
+
+*FAQ topics*, demonstrating custom =query= with =search= connector:
+%TWISTY{showlink="Code..."}%
+<verbatim class="tml">%STARTSECTION{"FAQTopicsExample"}%
+
+%GRID{
+ query="form.name='FAQForm' OR form.name='%SYSTEMWEB%.FAQForm'"
+ connector="search"
+ form="%SYSTEMWEB%.FAQForm"
+ web="%SYSTEMWEB%"
+ filterbar="on"
+ pager="on"
+ width="auto"
+}%
+
+%ENDSECTION{"FAQTopicsExample"}%</verbatim>
+%ENDTWISTY%
+%INCLUDE{"%TOPIC%" section="FAQTopicsExample"}%
+
+---++ Grid Connectors
+
+JQGridPlugin is shipped with three connectors:
+   * search - The default connector that uses native Foswiki search.
+   * dbcache - Works with DBCachePlugin.
+   * solr - Works with SolrPlugin.
+
+You can also create your own custom grid connectors by adding the class name to the !ExternalConnectors configure option.
+All parameters to %<nop>GRID% that end in =_connectorparam= will be passed along to your grid connector.
+Custom grid connectors must process the following parameters:
+<verbatim>
+  my $sortColumn = $request->param('sidx') || $columns[0];
+  my $sortOrder = $request->param('sord') || 'asc';
+  my $rowsPerPage = $request->param('rows') || 10;
+  my $curPage = $request->param('page') || 1;
+</verbatim>
+
+---++ Installation Instructions
+
+%$INSTALL_INSTRUCTIONS%
+
+---++ Plugin Info
+<!--
+   * Set SHORTDESCRIPTION = %$SHORTDESCRIPTION%
+-->
+
+|  Author(s): | Michael Daum |
+|  Copyright: | 2009-2013 Michael Daum http://michaeldaumconsulting.com |
+|  License: | GPL |
+|  Release: | %$RELEASE% |
+|  Version: | %$VERSION% |
+|  Change History: | <!-- versions below in reverse order --> |
+|  14 Mar 2013: | (2.21) be robust stumbling over topics that lost their form definition |
+|  01 Oct 2012: | (2.20) upgraded to jqgrid-4.4.0 |
+|  12 Jun 2012: | (2.10) upgraded to jqgrid-4.3.3 |
+|  18 May 2012: | (2.03) GRID macro now passes _connectorparam parameters to the grid connector; \
+                         Added !ExternalConnectors configure parameter. (Foswiki:Main/KipLubliner) |
+|  19 Oct 2011: | (2.02) Fixed bugs with SEARCH connector: broken on Foswiki 1.1.x, corrected column sorting quirks;\
+                         added some code to help when =LocalSite.cfg= settings are missing;\
+                         added notes regarding ={AuthScripts}= (Foswiki:Main/PaulHarvey) |
+|  28 Sep 2011: | (2.01) removed spurious =console.log()= which of course breaks jqgrid on some browsers |
+|  12 Sep 2011: | (1.00) upgraded to jqgrid-4.1.2;\
+                         added =rownumwidth=, =colname_formatter=, =colname_format=, =colname_formatoptions=, =colname_hidden=; \
+                         adding styling to sorted columns; \
+                         made recoding query parameters from utf8 to site charset depending on the foswiki api version; \
+                         added new =tmpl= formatter based on %SYSTEMWEB%.JQueryTmpl to be used by the new formatting code; \
+                         fixed property map for SEARCH backend (Foswiki:Main/PaulHarvey) |
+|  13 Jun 2011: | (0.9.0) restructured plugin to support arbitrary Connectors; \
+                         upgraded to jqgrid-4.0.0; \
+                         implemented a Foswiki:Extensions/SolrPlugin grid connector; \
+                         fixed char encoding of REST data; \
+                         improved SEARCH based grid connector |
+|  06 Jan 2011: | (0.3.1) Foswikitask:Item10228 - add parameters to grid to make it customizable |
+|  08 Sep 2010: | (0.3) upgraded to jqgrid-3.7.2; fixed vertical scrolling; fixed resizing of columns |
+|  19 Nov 2010: | (0.2.1) Foswikitask:Item9564 - add dependency to help script load ordering |
+|  26 May 2010: | (0.2) fixed loading locales; \
+                        improved grid construction process; \
+                        added field-specific options (title, resizable, align, width, search); \
+                        ongoing work on colmodel |
+|  26 Mar 2010: | initial release, externalized from Foswiki:Extensions/JQueryPlugin |
+|  Dependencies: | %$DEPENDENCIES% |
+|  Home: | Foswiki:Extensions/%TOPIC% |
+|  Support: | Foswiki:Support/%TOPIC% |
+
